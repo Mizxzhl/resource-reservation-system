@@ -89,32 +89,40 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check for overlapping active reservations
-    const conflict = await prisma.reservation.findFirst({
-      where: {
-        resourceId,
-        status: "ACTIVE",
-        startTime: { lt: endTime },
-        endTime: { gt: startTime },
-      },
-    });
+    // Check conflicts and create reservation safely
+    const reservation = await prisma.$transaction(async (tx) => {
+      // Lock the resource row to prevent simultaneous bookings
+      await tx.$queryRaw`
+        SELECT id
+        FROM "Resource"
+        WHERE id = ${resourceId}
+        FOR UPDATE
+      `;
 
-    if (conflict) {
-      return NextResponse.json(
-        { error: "This resource is already reserved for that time" },
-        { status: 409 }
-      );
-    }
+      // Check for overlapping active reservations
+      const conflict = await tx.reservation.findFirst({
+        where: {
+          resourceId,
+          status: "ACTIVE",
+          startTime: { lt: endTime },
+          endTime: { gt: startTime },
+        },
+      });
 
-    // Save the reservation
-    const reservation = await prisma.reservation.create({
-      data: {
-        resourceId,
-        reservedBy: reservedBy.trim(),
-        purpose: purpose.trim(),
-        startTime,
-        endTime,
-      },
+      if (conflict) {
+        throw new Error("RESERVATION_CONFLICT");
+      }
+
+      // Save the reservation
+      return tx.reservation.create({
+        data: {
+          resourceId,
+          reservedBy: reservedBy.trim(),
+          purpose: purpose.trim(),
+          startTime,
+          endTime,
+        },
+      });
     });
 
     return NextResponse.json(reservation, { status: 201 });
@@ -123,6 +131,17 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Invalid JSON" },
         { status: 400 }
+      );
+    }
+
+    // Return 409 when the requested time is already booked
+    if (
+      error instanceof Error &&
+      error.message === "RESERVATION_CONFLICT"
+    ) {
+      return NextResponse.json(
+        { error: "This resource is already reserved for that time" },
+        { status: 409 }
       );
     }
 
