@@ -62,9 +62,43 @@ export async function POST(request: Request) {
 
 
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+
+    const search = searchParams.get("search")?.trim();
+    const location = searchParams.get("location")?.trim();
+    const isActiveValue = searchParams.get("isActive");
+
+    if (
+      isActiveValue !== null &&
+      isActiveValue !== "true" &&
+      isActiveValue !== "false"
+    ) {
+      return NextResponse.json(
+        { error: "isActive must be true or false" },
+        { status: 400 }
+      );
+    }
+
     const resources = await prisma.resource.findMany({
+      where: {
+        ...(search && {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
+        ...(location && {
+          location: {
+            contains: location,
+            mode: "insensitive",
+          },
+        }),
+        ...(isActiveValue !== null && {
+          isActive: isActiveValue === "true",
+        }),
+      },
       orderBy: {
         id: "asc",
       },
