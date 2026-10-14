@@ -1,69 +1,177 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+import { useEffect, useState } from "react";
+
+type DashboardStats = {
+  totalResources: number;
+  activeResources: number;
+  totalReservations: number;
+  activeReservations: number;
+  cancelledReservations: number;
+};
+
+const statCards = [
+  {
+    title: "Total Resources",
+    key: "totalResources",
+    description: "All registered resources",
+    icon: "▦",
+  },
+  {
+    title: "Active Resources",
+    key: "activeResources",
+    description: "Resources ready to use",
+    icon: "✓",
+  },
+  {
+    title: "Active Reservations",
+    key: "activeReservations",
+    description: "Current active bookings",
+    icon: "▣",
+  },
+  {
+    title: "Cancelled Reservations",
+    key: "cancelledReservations",
+    description: "Bookings cancelled",
+    icon: "↗",
+  },
+] as const;
+
+export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const response = await fetch("/api/dashboard/stats");
+
+        if (!response.ok) {
+          throw new Error("Unable to load dashboard statistics");
+        }
+
+        const data: DashboardStats = await response.json();
+        setStats(data);
+      } catch {
+        setError("Could not load statistics. Please refresh the page.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadStats();
+  }, []);
+
+ return (
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <aside className="border-b border-slate-200 bg-white px-6 py-5">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">
+              Resource Reservation
+            </p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight">
+              Management Dashboard
+            </h1>
+          </div>
+
+          {/* Right side container holding the badge and navigation links together */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700">
+              Admin Overview
+            </span>
+            <nav className="flex gap-2">
+              <a
+                href="/resources"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition"
+              >
+                Resources
+              </a>
+              <a
+                href="/reservations"
+                className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900 transition"
+              >
+                Reservations
+              </a>
+            </nav>
+          </div>
+        </div>
+      </aside>
+
+      <section className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold">Dashboard Overview</h2>
+          <p className="mt-2 text-sm text-slate-500">
+            Monitor resources and reservation activity in one place.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {error && (
+          <div
+            role="alert"
+            className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {error}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {statCards.map((card) => (
+            <article
+              key={card.key}
+              className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-slate-500">
+                  {card.title}
+                </p>
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-xl text-blue-700">
+                  {card.icon}
+                </span>
+              </div>
+
+              <p className="mt-5 text-3xl font-bold tracking-tight">
+                {loading ? "—" : (stats?.[card.key] ?? 0)}
+              </p>
+
+              <p className="mt-2 text-sm text-slate-500">{card.description}</p>
+            </article>
+          ))}
         </div>
-      </main>
-    </div>
+
+        <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="text-lg font-semibold">Reservation Summary</h3>
+          <p className="mt-2 text-sm text-slate-500">
+            Total reservations recorded in the system.
+          </p>
+
+          <p className="mt-4 text-3xl font-bold">
+            {loading ? "—" : (stats?.totalReservations ?? 0)}
+          </p>
+
+          <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-full rounded-full bg-blue-600 transition-all"
+              style={{
+                width: `${
+                  stats && stats.totalReservations > 0
+                    ? (stats.activeReservations / stats.totalReservations) * 100
+                    : 0
+                }%`,
+              }}
+            />
+          </div>
+
+          <p className="mt-2 text-xs text-slate-500">
+            Active reservations compared with all reservations
+          </p>
+        </section>
+
+        <p className="mt-8 text-center text-xs text-slate-400">
+          Resource Reservation Management System
+        </p>
+      </section>
+    </main>
   );
 }
