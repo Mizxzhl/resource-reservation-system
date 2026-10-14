@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -64,10 +63,10 @@ export default function DashboardPage() {
     loadStats();
   }, []);
 
-  return (
+ return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <aside className="border-b border-slate-200 bg-white px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">
               Resource Reservation
@@ -77,9 +76,26 @@ export default function DashboardPage() {
             </h1>
           </div>
 
-          <span className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700">
-            Admin Overview
-          </span>
+          {/* Right side container holding the badge and navigation links together */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700">
+              Admin Overview
+            </span>
+            <nav className="flex gap-2">
+              <a
+                href="/resources"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition"
+              >
+                Resources
+              </a>
+              <a
+                href="/reservations"
+                className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900 transition"
+              >
+                Reservations
+              </a>
+            </nav>
+          </div>
         </div>
       </aside>
 
@@ -119,9 +135,7 @@ export default function DashboardPage() {
                 {loading ? "—" : (stats?.[card.key] ?? 0)}
               </p>
 
-              <p className="mt-2 text-sm text-slate-500">
-                {card.description}
-              </p>
+              <p className="mt-2 text-sm text-slate-500">{card.description}</p>
             </article>
           ))}
         </div>
@@ -142,8 +156,7 @@ export default function DashboardPage() {
               style={{
                 width: `${
                   stats && stats.totalReservations > 0
-                    ? (stats.activeReservations / stats.totalReservations) *
-                      100
+                    ? (stats.activeReservations / stats.totalReservations) * 100
                     : 0
                 }%`,
               }}
