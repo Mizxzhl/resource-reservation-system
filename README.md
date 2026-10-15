@@ -113,7 +113,8 @@ A sample database backup is included in the repository.
 
 ## ER Diagram
 
-[View the database ER diagram.](https://dbdiagram.io/d/6ad079f7aebfe7a21ff65122)
+The ER diagram shows the relationship between resources and reservations.
+(https://dbdiagram.io/d/6ad079f7aebfe7a21ff65122)
 
 ## Author
 
