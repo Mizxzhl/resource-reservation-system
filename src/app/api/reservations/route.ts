@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 // GET: View all reservations
 export async function GET() {
+  const unauthorized = await requireAdmin();
+
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const reservations = await prisma.reservation.findMany({
       include: {
@@ -26,6 +33,11 @@ export async function GET() {
 
 // POST: Create a reservation
 export async function POST(request: Request) {
+   const unauthorized = await requireAdmin();
+
+  if (unauthorized) {
+    return unauthorized;
+  }
   try {
     const body = await request.json();
 

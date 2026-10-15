@@ -1,8 +1,14 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 export async function POST(request: Request) {
+  const unauthorized = await requireAdmin();
+
+  if (unauthorized) {
+    return unauthorized;
+  }
   try {
     const body = await request.json();
 
@@ -63,6 +69,12 @@ export async function POST(request: Request) {
 
 
 export async function GET(request: Request) {
+  const unauthorized = await requireAdmin();
+
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const { searchParams } = new URL(request.url);
 
