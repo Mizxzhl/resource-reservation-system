@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Resource Reservation Management System
+
+## About the Project
+
+The Resource Reservation Management System is a web application developed to manage shared resources and their reservations.
+
+An admin can add and manage resources, check availability, create reservations, and cancel bookings. The dashboard also provides a quick overview of reservation statistics.
+
+The system checks resource availability to help prevent overlapping reservations.
+
+## Features
+
+- Admin login and logout
+- Dashboard with reservation statistics
+- Add, edit, search, and filter resources
+- Activate and deactivate resources
+- Create and cancel reservations
+- Check resource availability
+- Prevent overlapping reservations
+- Validate requests and handle errors
+
+## Technologies Used
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- PostgreSQL
+- Prisma ORM
+- JWT authentication
+- bcryptjs
+- Git and GitHub
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Mizxzhl/resource-reservation-system.git
+cd resource-reservation-system
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file in the project root and add the following variables with your own values:
+
+```env
+DATABASE_URL="your_postgresql_connection_string"
+ADMIN_EMAIL="your_admin_email"
+ADMIN_PASSWORD_HASH="your_bcrypt_password_hash"
+SESSION_SECRET="your_random_session_secret"
+```
+
+Do not commit your `.env` file or share your credentials.
+
+### 4. Set up the database
+
+Make sure PostgreSQL is running and your database has been created.
+
+Apply the existing Prisma migrations:
+
+```bash
+npx prisma migrate deploy
+```
+
+If you are setting up a fresh development database without existing migrations, use the appropriate Prisma development migration workflow.
+
+### 5. Start the application
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The admin login page is available at `/login`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## API Endpoints
 
-## Learn More
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/resources` | Get resources and apply filters |
+| POST | `/api/resources` | Create a resource |
+| PUT | `/api/resources/[id]` | Update a resource |
+| DELETE | `/api/resources/[id]` | Deactivate a resource |
+| GET | `/api/resources/[id]/availability` | Check availability |
+| GET | `/api/reservations` | Get reservations |
+| POST | `/api/reservations` | Create a reservation |
+| DELETE | `/api/reservations/[id]` | Cancel a reservation |
+| GET | `/api/dashboard/stats` | Get dashboard statistics |
+| POST | `/api/auth/login` | Admin login |
+| POST | `/api/auth/logout` | Admin logout |
+| GET | `/api/auth/session` | Check the admin session |
 
-To learn more about Next.js, take a look at the following resources:
+The management endpoints require an authenticated admin session.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Database
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The application uses PostgreSQL with Prisma ORM.
 
-## Deploy on Vercel
+The main database models are:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Resource:** Stores resource details, location, and active status.
+- **Reservation:** Stores the resource being reserved, the person making the reservation, purpose, start and end times, and status.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A sample database backup is included in the repository.
+
+## ER Diagram
+
+Add the shareable ER diagram link here after creating the diagram.
+
+## Author
+
+Developed as a software engineering project.
