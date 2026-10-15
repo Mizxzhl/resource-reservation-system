@@ -113,7 +113,7 @@ A sample database backup is included in the repository.
 
 ## ER Diagram
 
-Add the shareable ER diagram link here after creating the diagram.
+[View the database ER diagram.](https://dbdiagram.io/d/6ad079f7aebfe7a21ff65122)
 
 ## Author
 
