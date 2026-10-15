@@ -51,25 +51,61 @@ npm install
 Create a `.env` file in the project root and add the following variables with your own values:
 
 ```env
-DATABASE_URL="your_postgresql_connection_string"
-ADMIN_EMAIL="your_admin_email"
-ADMIN_PASSWORD_HASH="your_bcrypt_password_hash"
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/YOUR_DATABASE"
+ADMIN_EMAIL="admin@example.com"
+ADMIN_PASSWORD_HASH="your_escaped_bcrypt_password_hash"
 SESSION_SECRET="your_random_session_secret"
 ```
 
-Do not commit your `.env` file or share your credentials.
+**Generate the admin password hash:**
+
+Run the following command, replacing `YourStrongPassword123!` with your preferred admin password:
+
+```bash
+node -e "require('bcryptjs').hash('YourStrongPassword123!', 12).then(console.log)"
+```
+
+Copy the generated hash into `ADMIN_PASSWORD_HASH`.
+
+**Important:** Next.js environment variable expansion interprets `$` characters. Escape every `$` in the generated bcrypt hash using `\$` when adding it to `.env`.
+
+Example format:
+
+```env
+ADMIN_PASSWORD_HASH="\$2b\$12\$YOUR_ESCAPED_HASH"
+```
+
+Use the complete generated hash, replacing every `$` with `\$`.
+
+**Generate the session secret:**
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Copy the generated value into `SESSION_SECRET`.
+
+**Security:** Never commit your `.env` file, passwords, session secrets, or database credentials to GitHub. Ensure `.env` is included in `.gitignore`.
 
 ### 4. Set up the database
 
 Make sure PostgreSQL is running and your database has been created.
 
-Apply the existing Prisma migrations:
+**Generate the Prisma Client:**
+
+```bash
+npx prisma generate
+```
+
+This generates the Prisma Client required by the application.
+
+**Apply the existing Prisma migrations:**
 
 ```bash
 npx prisma migrate deploy
 ```
 
-If you are setting up a fresh development database without existing migrations, use the appropriate Prisma development migration workflow.
+This creates the required database tables using the project's existing migrations.
 
 ### 5. Start the application
 
@@ -77,9 +113,22 @@ If you are setting up a fresh development database without existing migrations, 
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:####) in your browser.
 
 The admin login page is available at `/login`.
+
+Use the `ADMIN_EMAIL` and the original password used to generate `ADMIN_PASSWORD_HASH` to log in.
+
+### 6. Verify the production build
+
+Run:
+
+```bash
+npm run build
+```
+
+A successful build confirms that the application compiles for production.
+
 
 ## API Endpoints
 
